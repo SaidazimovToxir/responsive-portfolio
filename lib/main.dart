@@ -21,12 +21,22 @@
 //   }
 // }
 
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:portfolio/controllers/blog_controller.dart';
+import 'package:portfolio/firebase_options.dart';
+import 'package:portfolio/models/blog_model.dart';
 import 'package:portfolio/screens/home_page.dart';
-import 'package:portfolio/screens/largescreen/blog.dart';
+import 'package:portfolio/screens/largescreen/blog_description_screen.dart';
+import 'package:portfolio/screens/largescreen/blog_screen.dart';
+import 'package:provider/provider.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(MyApp());
 }
 
@@ -35,13 +45,20 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (context) => BlogController(),
+        ),
+      ],
+      child: MaterialApp.router(
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          useMaterial3: true,
+        ),
+        routerConfig: _router,
       ),
-      routerConfig: _router,  
     );
   }
 
@@ -54,6 +71,12 @@ class MyApp extends StatelessWidget {
       GoRoute(
         path: '/blog',
         builder: (context, state) => const BlogScreen(),
+      ),
+      GoRoute(
+        path: '/blogDescription',
+        builder: (context, state) => BlogDescriptionScreen(
+          posts: state.extra as BlogModel,
+        ),
       ),
     ],
   );
